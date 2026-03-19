@@ -24,6 +24,8 @@ export const sampleListings: Listing[] = [
     rating: 4.2,
     totalRatings: 95n,
     isActive: true,
+    lat: 26.1866,
+    lng: 91.7458,
   },
   {
     id: 2n,
@@ -41,6 +43,8 @@ export const sampleListings: Listing[] = [
     rating: 4.6,
     totalRatings: 742n,
     isActive: true,
+    lat: 26.1397,
+    lng: 91.7899,
   },
   {
     id: 3n,
@@ -58,6 +62,8 @@ export const sampleListings: Listing[] = [
     rating: 3.7,
     totalRatings: 58n,
     isActive: true,
+    lat: 26.1848,
+    lng: 91.7466,
   },
   {
     id: 4n,
@@ -75,6 +81,8 @@ export const sampleListings: Listing[] = [
     rating: 4.5,
     totalRatings: 1120n,
     isActive: true,
+    lat: 26.1874,
+    lng: 91.7407,
   },
   {
     id: 5n,
@@ -92,6 +100,8 @@ export const sampleListings: Listing[] = [
     rating: 4.4,
     totalRatings: 389n,
     isActive: true,
+    lat: 26.1864,
+    lng: 91.7422,
   },
   {
     id: 6n,
@@ -109,6 +119,8 @@ export const sampleListings: Listing[] = [
     rating: 4.0,
     totalRatings: 47n,
     isActive: true,
+    lat: 26.1532,
+    lng: 91.7788,
   },
   {
     id: 7n,
@@ -126,6 +138,8 @@ export const sampleListings: Listing[] = [
     rating: 4.3,
     totalRatings: 163n,
     isActive: true,
+    lat: 26.1568,
+    lng: 91.7667,
   },
   {
     id: 8n,
@@ -143,5 +157,7 @@ export const sampleListings: Listing[] = [
     rating: 4.1,
     totalRatings: 88n,
     isActive: true,
+    lat: 26.1872,
+    lng: 91.744,
   },
 ];

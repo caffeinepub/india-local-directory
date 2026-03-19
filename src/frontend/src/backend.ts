@@ -91,6 +91,8 @@ export class ExternalBlob {
 }
 export interface Listing {
     id: bigint;
+    lat: number;
+    lng: number;
     totalRatings: bigint;
     city: string;
     name: string;
@@ -109,6 +111,8 @@ export interface UserProfile {
     name: string;
 }
 export interface ListingUpdateData {
+    lat?: number;
+    lng?: number;
     city?: string;
     name?: string;
     description?: string;
@@ -143,7 +147,7 @@ export enum Variant_retail_healthcare_finance_other_food_education_services {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createListing(name: string, listingType: Variant_atm_institution_shop, category: Variant_retail_healthcare_finance_other_food_education_services, address: string, city: string, state: string, pincode: string, phone: string, description: string, openHours: string): Promise<bigint>;
+    createListing(name: string, listingType: Variant_atm_institution_shop, category: Variant_retail_healthcare_finance_other_food_education_services, address: string, city: string, state: string, pincode: string, phone: string, description: string, openHours: string, lat: number, lng: number): Promise<bigint>;
     deleteListing(id: bigint): Promise<void>;
     getAllActiveListings(): Promise<Array<Listing>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -187,17 +191,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createListing(arg0: string, arg1: Variant_atm_institution_shop, arg2: Variant_retail_healthcare_finance_other_food_education_services, arg3: string, arg4: string, arg5: string, arg6: string, arg7: string, arg8: string, arg9: string): Promise<bigint> {
+    async createListing(arg0: string, arg1: Variant_atm_institution_shop, arg2: Variant_retail_healthcare_finance_other_food_education_services, arg3: string, arg4: string, arg5: string, arg6: string, arg7: string, arg8: string, arg9: string, arg10: number, arg11: number): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createListing(arg0, to_candid_variant_n3(this._uploadFile, this._downloadFile, arg1), to_candid_variant_n4(this._uploadFile, this._downloadFile, arg2), arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                const result = await this.actor.createListing(arg0, to_candid_variant_n3(this._uploadFile, this._downloadFile, arg1), to_candid_variant_n4(this._uploadFile, this._downloadFile, arg2), arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createListing(arg0, to_candid_variant_n3(this._uploadFile, this._downloadFile, arg1), to_candid_variant_n4(this._uploadFile, this._downloadFile, arg2), arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+            const result = await this.actor.createListing(arg0, to_candid_variant_n3(this._uploadFile, this._downloadFile, arg1), to_candid_variant_n4(this._uploadFile, this._downloadFile, arg2), arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
             return result;
         }
     }
@@ -370,6 +374,8 @@ function from_candid_opt_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 }
 function from_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
+    lat: number;
+    lng: number;
     totalRatings: bigint;
     city: string;
     name: string;
@@ -405,6 +411,8 @@ function from_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint
     pincode: string;
 }): {
     id: bigint;
+    lat: number;
+    lng: number;
     totalRatings: bigint;
     city: string;
     name: string;
@@ -421,6 +429,8 @@ function from_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint
 } {
     return {
         id: value.id,
+        lat: value.lat,
+        lng: value.lng,
         totalRatings: value.totalRatings,
         city: value.city,
         name: value.name,
@@ -510,6 +520,8 @@ function to_candid_opt_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Arr
     return value === null ? candid_none() : candid_some(value);
 }
 function to_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    lat?: number;
+    lng?: number;
     city?: string;
     name?: string;
     description?: string;
@@ -522,6 +534,8 @@ function to_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     phone?: string;
     pincode?: string;
 }): {
+    lat: [] | [number];
+    lng: [] | [number];
     city: [] | [string];
     name: [] | [string];
     description: [] | [string];
@@ -555,6 +569,8 @@ function to_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     pincode: [] | [string];
 } {
     return {
+        lat: value.lat ? candid_some(value.lat) : candid_none(),
+        lng: value.lng ? candid_some(value.lng) : candid_none(),
         city: value.city ? candid_some(value.city) : candid_none(),
         name: value.name ? candid_some(value.name) : candid_none(),
         description: value.description ? candid_some(value.description) : candid_none(),

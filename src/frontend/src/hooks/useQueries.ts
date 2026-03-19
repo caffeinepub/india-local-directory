@@ -74,6 +74,8 @@ export function useCreateListing() {
       phone: string;
       description: string;
       openHours: string;
+      lat?: number;
+      lng?: number;
     }) => {
       if (!actor) throw new Error("No actor");
       return actor.createListing(
@@ -87,6 +89,8 @@ export function useCreateListing() {
         data.phone,
         data.description,
         data.openHours,
+        data.lat ?? 0,
+        data.lng ?? 0,
       );
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["listings"] }),

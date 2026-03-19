@@ -18,6 +18,7 @@ interface NavbarProps {
   isLoggedIn: boolean;
   isAdmin: boolean;
   onAdminClick: () => void;
+  onAddBusiness?: () => void;
 }
 
 export default function Navbar({
@@ -28,6 +29,7 @@ export default function Navbar({
   isLoggedIn,
   isAdmin,
   onAdminClick,
+  onAddBusiness,
 }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -60,13 +62,14 @@ export default function Navbar({
 
         {/* Nav links */}
         <nav className="hidden lg:flex items-center gap-6 ml-2">
-          <a
-            href="/#"
+          <button
+            type="button"
+            onClick={onAddBusiness}
             className="text-sm text-foreground/70 hover:text-orange font-medium transition-colors"
             data-ocid="nav.link"
           >
             Add Your Business
-          </a>
+          </button>
           <a
             href="/#"
             className="text-sm text-foreground/70 hover:text-orange font-medium transition-colors"
@@ -168,13 +171,17 @@ export default function Navbar({
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white border-t border-border px-4 py-3 flex flex-col gap-3">
-          <a
-            href="/#"
-            className="text-sm font-medium py-1"
+          <button
+            type="button"
+            onClick={() => {
+              onAddBusiness?.();
+              setMobileOpen(false);
+            }}
+            className="text-sm font-medium py-1 text-left"
             data-ocid="nav.link"
           >
             Add Your Business
-          </a>
+          </button>
           <a
             href="/#"
             className="text-sm font-medium py-1"

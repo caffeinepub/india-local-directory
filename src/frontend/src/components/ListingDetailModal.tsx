@@ -19,7 +19,6 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { type Listing, Variant_atm_institution_shop } from "../backend";
-import { useGeocode } from "../hooks/useGeocode";
 import { useRateListing } from "../hooks/useQueries";
 import {
   ATM_GRADIENT,
@@ -37,24 +36,21 @@ interface ListingDetailModalProps {
 }
 
 function ListingMap({ listing }: { listing: Listing }) {
-  const address = `${listing.address}, ${listing.city}`;
-  const coords = useGeocode(address);
-
-  if (!coords) {
+  if (listing.lat === 0 && listing.lng === 0) {
     return (
       <div
         className="flex items-center justify-center h-[200px] bg-muted rounded-xl text-sm text-muted-foreground"
-        data-ocid="listing.loading_state"
+        data-ocid="listing.error_state"
       >
-        Loading map…
+        Location not available
       </div>
     );
   }
 
   return (
     <OsmMap
-      markers={[{ lat: coords.lat, lng: coords.lng, title: listing.name }]}
-      center={[coords.lat, coords.lng]}
+      markers={[{ lat: listing.lat, lng: listing.lng, title: listing.name }]}
+      center={[listing.lat, listing.lng]}
       zoom={15}
       height="200px"
     />

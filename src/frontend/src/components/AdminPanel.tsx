@@ -50,6 +50,7 @@ import {
   useUpdateListing,
 } from "../hooks/useQueries";
 import { CATEGORY_LABELS, CITIES, LISTING_TYPE_LABELS } from "../types";
+import MapPicker from "./MapPicker";
 
 const S = Variant_atm_institution_shop;
 const C = Variant_retail_healthcare_finance_other_food_education_services;
@@ -65,6 +66,8 @@ type FormData = {
   phone: string;
   description: string;
   openHours: string;
+  lat: number;
+  lng: number;
 };
 
 const EMPTY_FORM: FormData = {
@@ -72,21 +75,28 @@ const EMPTY_FORM: FormData = {
   listingType: S.shop,
   category: C.retail,
   address: "",
-  city: "Mumbai",
+  city: "Guwahati",
   state: "",
   pincode: "",
   phone: "",
   description: "",
   openHours: "",
+  lat: 0,
+  lng: 0,
 };
 
 interface AdminPanelProps {
   onClose: () => void;
   listings: Listing[];
+  autoOpenForm?: boolean;
 }
 
-export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
-  const [dialogOpen, setDialogOpen] = useState(false);
+export default function AdminPanel({
+  onClose,
+  listings,
+  autoOpenForm,
+}: AdminPanelProps) {
+  const [dialogOpen, setDialogOpen] = useState(!!autoOpenForm);
   const [editTarget, setEditTarget] = useState<Listing | null>(null);
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
 
@@ -113,6 +123,8 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
       phone: listing.phone,
       description: listing.description,
       openHours: listing.openHours,
+      lat: listing.lat,
+      lng: listing.lng,
     });
     setDialogOpen(true);
   };
@@ -287,7 +299,9 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
 
           <div className="grid gap-4 py-2">
             <div className="grid gap-1.5">
-              <Label htmlFor="name">Business Name</Label>
+              <Label htmlFor="name">
+                Business Name <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="name"
                 value={form.name}
@@ -334,7 +348,9 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">
+                Address <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="address"
                 value={form.address}
@@ -366,7 +382,7 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
                   id="state"
                   value={form.state}
                   onChange={(e) => set("state")(e.target.value)}
-                  placeholder="e.g. Maharashtra"
+                  placeholder="e.g. Assam"
                   data-ocid="admin.input"
                 />
               </div>
@@ -385,7 +401,9 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
                 />
               </div>
               <div className="grid gap-1.5">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">
+                  Phone <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="phone"
                   value={form.phone}
@@ -407,8 +425,30 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
               />
             </div>
 
+            {/* Map Picker */}
             <div className="grid gap-1.5">
-              <Label htmlFor="description">Description</Label>
+              <Label className="flex items-center gap-1.5">
+                📍 Pin Location on Map
+                <span className="text-muted-foreground text-xs font-normal">
+                  (click or drag to reposition)
+                </span>
+              </Label>
+              {dialogOpen && (
+                <MapPicker
+                  key={editTarget ? editTarget.id.toString() : "new"}
+                  initialLat={form.lat}
+                  initialLng={form.lng}
+                  onChange={(lat, lng) =>
+                    setForm((prev) => ({ ...prev, lat, lng }))
+                  }
+                />
+              )}
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="description">
+                Description <span className="text-destructive">*</span>
+              </Label>
               <Textarea
                 id="description"
                 value={form.description}
@@ -418,6 +458,11 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
                 data-ocid="admin.textarea"
               />
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              Fields marked with <span className="text-destructive">*</span> are
+              required.
+            </p>
           </div>
 
           <DialogFooter>
@@ -430,7 +475,13 @@ export default function AdminPanel({ onClose, listings }: AdminPanelProps) {
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={isPending || !form.name}
+              disabled={
+                isPending ||
+                !form.name ||
+                !form.address ||
+                !form.phone ||
+                !form.description
+              }
               className="bg-orange text-white hover:bg-orange/90"
               data-ocid="admin.submit_button"
             >

@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Map as MapIcon, MapPin } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type {
   Listing,
   Variant_atm_institution_shop,
@@ -18,7 +18,6 @@ import ListingCard from "./components/ListingCard";
 import ListingDetailModal from "./components/ListingDetailModal";
 import Navbar from "./components/Navbar";
 import OsmMap from "./components/OsmMap";
-import type { MapMarker } from "./components/OsmMap";
 import { sampleListings } from "./data/sampleData";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useIsAdmin, useListings } from "./hooks/useQueries";
@@ -30,7 +29,8 @@ type Category = Variant_retail_healthcare_finance_other_food_education_services;
 
 function AppContent() {
   const { login, clear, loginStatus, identity } = useInternetIdentity();
-  const isLoggedIn = loginStatus === "success" && !!identity;
+  const isLoggedIn =
+    (loginStatus === "success" || loginStatus === "idle") && !!identity;
 
   const [selectedCity, setSelectedCity] = useState("Guwahati");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -45,11 +45,7 @@ function AppContent() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const [geocodedMarkers, setGeocodedMarkers] = useState<MapMarker[]>([]);
-  const geocodeCache = useRef<Map<string, { lat: number; lng: number }>>(
-    new Map(),
-  );
-  const geocodeInProgress = useRef(false);
+  const [autoOpenAdminForm, setAutoOpenAdminForm] = useState(false);
 
   const cityFilter = selectedCity;
   const typeFilter = typeFilters.size === 1 ? [...typeFilters][0] : null;
@@ -68,6 +64,11 @@ function AppContent() {
   const handleSearch = (keyword: string, city: string) => {
     setSearchKeyword(keyword);
     if (city) setSelectedCity(city);
+  };
+
+  const handleAddBusiness = () => {
+    setAutoOpenAdminForm(true);
+    setShowAdmin(true);
   };
 
   const toggleTypeFilter = (t: ListingType) => {
@@ -124,67 +125,19 @@ function AppContent() {
     return filtered;
   }, [rawListings, typeFilters, categoryFilters, selectedCategory, sortBy]);
 
-  // Batch geocode listings when map is shown
-  useEffect(() => {
-    if (!showMap || listings.length === 0 || geocodeInProgress.current) return;
-    geocodeInProgress.current = true;
-
-    const fetchWithDelay = async () => {
-      const markers: MapMarker[] = [];
-      for (let i = 0; i < listings.length; i++) {
-        const l = listings[i];
-        const key = `${l.address}, ${l.city}`;
-        const cached = geocodeCache.current.get(key);
-        if (cached) {
-          markers.push({
-            lat: cached.lat,
-            lng: cached.lng,
-            title: l.name,
-            id: Number(l.id),
-          });
-          continue;
-        }
-        try {
-          const encoded = encodeURIComponent(`${key}, Assam`);
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?q=${encoded}&format=json&limit=1`,
-            {
-              headers: {
-                "Accept-Language": "en",
-                "User-Agent": "MyAssam-Directory/1.0",
-              },
-            },
-          );
-          if (res.ok) {
-            const data = await res.json();
-            if (data.length > 0) {
-              const coords = {
-                lat: Number.parseFloat(data[0].lat),
-                lng: Number.parseFloat(data[0].lon),
-              };
-              geocodeCache.current.set(key, coords);
-              markers.push({
-                lat: coords.lat,
-                lng: coords.lng,
-                title: l.name,
-                id: Number(l.id),
-              });
-            }
-          }
-        } catch {
-          // ignore
-        }
-        // Respect rate limits: 200ms delay between requests
-        if (i < listings.length - 1) {
-          await new Promise((resolve) => setTimeout(resolve, 200));
-        }
-      }
-      setGeocodedMarkers(markers);
-      geocodeInProgress.current = false;
-    };
-
-    fetchWithDelay();
-  }, [showMap, listings]);
+  // Derive map markers directly from stored coordinates
+  const mapMarkers = useMemo(
+    () =>
+      listings
+        .filter((l) => l.lat !== 0 || l.lng !== 0)
+        .map((l) => ({
+          lat: l.lat,
+          lng: l.lng,
+          title: l.name,
+          id: Number(l.id),
+        })),
+    [listings],
+  );
 
   const handleMapMarkerClick = (id: number) => {
     const found = listings.find((l) => Number(l.id) === id);
@@ -194,8 +147,12 @@ function AppContent() {
   if (showAdmin) {
     return (
       <AdminPanel
-        onClose={() => setShowAdmin(false)}
+        onClose={() => {
+          setShowAdmin(false);
+          setAutoOpenAdminForm(false);
+        }}
         listings={backendListings ?? []}
+        autoOpenForm={autoOpenAdminForm}
       />
     );
   }
@@ -210,6 +167,7 @@ function AppContent() {
         isLoggedIn={isLoggedIn}
         isAdmin={!!isAdmin}
         onAdminClick={() => setShowAdmin(true)}
+        onAddBusiness={handleAddBusiness}
       />
 
       <main className="flex-1">
@@ -251,21 +209,11 @@ function AppContent() {
                 className="mb-6 rounded-xl overflow-hidden shadow-md border border-border"
                 data-ocid="map.panel"
               >
-                {geocodedMarkers.length === 0 ? (
-                  <div
-                    className="h-[350px] flex flex-col items-center justify-center bg-muted text-muted-foreground gap-3"
-                    data-ocid="map.loading_state"
-                  >
-                    <MapIcon className="w-8 h-8 animate-pulse" />
-                    <p className="text-sm">Locating businesses on map…</p>
-                  </div>
-                ) : (
-                  <OsmMap
-                    markers={geocodedMarkers}
-                    height="350px"
-                    onMarkerClick={handleMapMarkerClick}
-                  />
-                )}
+                <OsmMap
+                  markers={mapMarkers}
+                  height="350px"
+                  onMarkerClick={handleMapMarkerClick}
+                />
               </motion.div>
             )}
           </div>

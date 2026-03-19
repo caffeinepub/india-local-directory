@@ -9,6 +9,8 @@ export interface None {
 export type Option<T> = Some<T> | None;
 export interface Listing {
     id: bigint;
+    lat: number;
+    lng: number;
     totalRatings: bigint;
     city: string;
     name: string;
@@ -27,6 +29,8 @@ export interface UserProfile {
     name: string;
 }
 export interface ListingUpdateData {
+    lat?: number;
+    lng?: number;
     city?: string;
     name?: string;
     description?: string;
@@ -60,7 +64,7 @@ export enum Variant_retail_healthcare_finance_other_food_education_services {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createListing(name: string, listingType: Variant_atm_institution_shop, category: Variant_retail_healthcare_finance_other_food_education_services, address: string, city: string, state: string, pincode: string, phone: string, description: string, openHours: string): Promise<bigint>;
+    createListing(name: string, listingType: Variant_atm_institution_shop, category: Variant_retail_healthcare_finance_other_food_education_services, address: string, city: string, state: string, pincode: string, phone: string, description: string, openHours: string, lat: number, lng: number): Promise<bigint>;
     deleteListing(id: bigint): Promise<void>;
     getAllActiveListings(): Promise<Array<Listing>>;
     getCallerUserProfile(): Promise<UserProfile | null>;

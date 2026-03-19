@@ -12,6 +12,8 @@ import type { Principal } from '@icp-sdk/core/principal';
 
 export interface Listing {
   'id' : bigint,
+  'lat' : number,
+  'lng' : number,
   'totalRatings' : bigint,
   'city' : string,
   'name' : string,
@@ -35,6 +37,8 @@ export interface Listing {
   'pincode' : string,
 }
 export interface ListingUpdateData {
+  'lat' : [] | [number],
+  'lng' : [] | [number],
   'city' : [] | [string],
   'name' : [] | [string],
   'description' : [] | [string],
@@ -86,6 +90,8 @@ export interface _SERVICE {
       string,
       string,
       string,
+      number,
+      number,
     ],
     bigint
   >,

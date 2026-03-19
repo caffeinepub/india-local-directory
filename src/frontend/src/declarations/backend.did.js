@@ -15,6 +15,8 @@ export const UserRole = IDL.Variant({
 });
 export const Listing = IDL.Record({
   'id' : IDL.Nat,
+  'lat' : IDL.Float64,
+  'lng' : IDL.Float64,
   'totalRatings' : IDL.Nat,
   'city' : IDL.Text,
   'name' : IDL.Text,
@@ -43,6 +45,8 @@ export const Listing = IDL.Record({
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const ListingUpdateData = IDL.Record({
+  'lat' : IDL.Opt(IDL.Float64),
+  'lng' : IDL.Opt(IDL.Float64),
   'city' : IDL.Opt(IDL.Text),
   'name' : IDL.Opt(IDL.Text),
   'description' : IDL.Opt(IDL.Text),
@@ -99,6 +103,8 @@ export const idlService = IDL.Service({
         IDL.Text,
         IDL.Text,
         IDL.Text,
+        IDL.Float64,
+        IDL.Float64,
       ],
       [IDL.Nat],
       [],
@@ -155,6 +161,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const Listing = IDL.Record({
     'id' : IDL.Nat,
+    'lat' : IDL.Float64,
+    'lng' : IDL.Float64,
     'totalRatings' : IDL.Nat,
     'city' : IDL.Text,
     'name' : IDL.Text,
@@ -183,6 +191,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const ListingUpdateData = IDL.Record({
+    'lat' : IDL.Opt(IDL.Float64),
+    'lng' : IDL.Opt(IDL.Float64),
     'city' : IDL.Opt(IDL.Text),
     'name' : IDL.Opt(IDL.Text),
     'description' : IDL.Opt(IDL.Text),
@@ -239,6 +249,8 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
           IDL.Text,
           IDL.Text,
+          IDL.Float64,
+          IDL.Float64,
         ],
         [IDL.Nat],
         [],
